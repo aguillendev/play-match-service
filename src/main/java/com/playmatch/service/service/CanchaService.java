@@ -70,6 +70,15 @@ public class CanchaService {
     public CanchaResponse actualizarHorarios(Long canchaId, CanchaRequest request) {
         Cancha cancha = canchaRepository.findById(canchaId)
                 .orElseThrow(() -> new NotFoundException("Cancha no encontrada"));
+        UserPrincipal principal = getAuthenticatedPrincipal();
+        if (principal.getRole() != Role.DUENO) {
+            throw new AccessDeniedException("Solo un usuario con rol dueño puede actualizar canchas");
+        }
+        Dueno dueno = duenoRepository.findByUsuarioId(principal.getUsuarioId())
+                .orElseThrow(() -> new AccessDeniedException("No se encontró un dueño asociado al usuario autenticado"));
+        if (!cancha.getDueno().getId().equals(dueno.getId())) {
+            throw new AccessDeniedException("No puedes modificar canchas que pertenecen a otro dueño");
+        }
         cancha.setHorarioApertura(request.getHorarioApertura());
         cancha.setHorarioCierre(request.getHorarioCierre());
         return toResponse(canchaRepository.save(cancha));

@@ -9,7 +9,6 @@ public class ReservaRequest {
     @NotNull
     private Long canchaId;
 
-    @NotNull
     private Long jugadorId;
 
     @NotNull
