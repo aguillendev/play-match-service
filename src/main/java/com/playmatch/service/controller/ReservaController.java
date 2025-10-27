@@ -5,6 +5,7 @@ import com.playmatch.service.dto.ReservaResponse;
 import com.playmatch.service.service.ReservationService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,6 +23,7 @@ public class ReservaController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('JUGADOR')")
     @Operation(summary = "Crear una reserva de cancha")
     public ResponseEntity<ReservaResponse> crear(@Validated @RequestBody ReservaRequest request) {
         return ResponseEntity.ok(reservationService.crearReserva(request));

@@ -1,5 +1,6 @@
 package com.playmatch.service.security;
 
+import com.playmatch.service.entity.Role;
 import com.playmatch.service.entity.Usuario;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -49,5 +50,13 @@ public class UserPrincipal implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public Long getUsuarioId() {
+        return usuario.getId();
+    }
+
+    public Role getRole() {
+        return usuario.getRole();
     }
 }

@@ -4,9 +4,14 @@ import com.playmatch.service.dto.CanchaRequest;
 import com.playmatch.service.dto.CanchaResponse;
 import com.playmatch.service.entity.Cancha;
 import com.playmatch.service.entity.Dueno;
+import com.playmatch.service.entity.Role;
 import com.playmatch.service.exception.NotFoundException;
 import com.playmatch.service.repository.CanchaRepository;
 import com.playmatch.service.repository.DuenoRepository;
+import com.playmatch.service.security.UserPrincipal;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,9 +30,13 @@ public class CanchaService {
     }
 
     @Transactional
-    public CanchaResponse crearCancha(Long duenoId, CanchaRequest request) {
-        Dueno dueno = duenoRepository.findById(duenoId)
-                .orElseThrow(() -> new NotFoundException("Dueño no encontrado"));
+    public CanchaResponse crearCancha(CanchaRequest request) {
+        UserPrincipal principal = getAuthenticatedPrincipal();
+        if (principal.getRole() != Role.DUENO) {
+            throw new AccessDeniedException("Solo un usuario con rol dueño puede crear canchas");
+        }
+        Dueno dueno = duenoRepository.findByUsuarioId(principal.getUsuarioId())
+                .orElseThrow(() -> new AccessDeniedException("No se encontró un dueño asociado al usuario autenticado"));
         Cancha cancha = new Cancha();
         cancha.setNombre(request.getNombre());
         cancha.setDireccion(request.getDireccion());
@@ -39,6 +48,14 @@ public class CanchaService {
         cancha.setDueno(dueno);
         Cancha guardada = canchaRepository.save(cancha);
         return toResponse(guardada);
+    }
+
+    private UserPrincipal getAuthenticatedPrincipal() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof UserPrincipal principal)) {
+            throw new AccessDeniedException("Usuario no autenticado");
+        }
+        return principal;
     }
 
     @Transactional(readOnly = true)

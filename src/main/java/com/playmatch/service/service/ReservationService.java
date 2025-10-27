@@ -4,12 +4,17 @@ import com.playmatch.service.dto.ReservaRequest;
 import com.playmatch.service.dto.ReservaResponse;
 import com.playmatch.service.entity.Cancha;
 import com.playmatch.service.entity.Jugador;
+import com.playmatch.service.entity.Role;
 import com.playmatch.service.entity.Reserva;
 import com.playmatch.service.exception.BadRequestException;
 import com.playmatch.service.exception.NotFoundException;
 import com.playmatch.service.repository.CanchaRepository;
 import com.playmatch.service.repository.JugadorRepository;
 import com.playmatch.service.repository.ReservaRepository;
+import com.playmatch.service.security.UserPrincipal;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,8 +37,15 @@ public class ReservationService {
 
     @Transactional
     public ReservaResponse crearReserva(ReservaRequest request) {
-        Jugador jugador = jugadorRepository.findById(request.getJugadorId())
-                .orElseThrow(() -> new NotFoundException("Jugador no encontrado"));
+        UserPrincipal principal = getAuthenticatedPrincipal();
+        if (principal.getRole() != Role.JUGADOR) {
+            throw new AccessDeniedException("Solo un usuario con rol jugador puede crear reservas");
+        }
+        Jugador jugador = jugadorRepository.findByUsuarioId(principal.getUsuarioId())
+                .orElseThrow(() -> new AccessDeniedException("No se encontró un jugador asociado al usuario autenticado"));
+        if (request.getJugadorId() != null && !jugador.getId().equals(request.getJugadorId())) {
+            throw new AccessDeniedException("No puedes crear una reserva para otro jugador");
+        }
         Cancha cancha = canchaRepository.findById(request.getCanchaId())
                 .orElseThrow(() -> new NotFoundException("Cancha no encontrada"));
 
@@ -59,5 +71,13 @@ public class ReservationService {
         response.setInicio(guardada.getInicio());
         response.setFin(guardada.getFin());
         return response;
+    }
+
+    private UserPrincipal getAuthenticatedPrincipal() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof UserPrincipal principal)) {
+            throw new AccessDeniedException("Usuario no autenticado");
+        }
+        return principal;
     }
 }

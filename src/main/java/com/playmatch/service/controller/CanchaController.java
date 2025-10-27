@@ -5,6 +5,7 @@ import com.playmatch.service.dto.CanchaResponse;
 import com.playmatch.service.service.CanchaService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,10 +37,10 @@ public class CanchaController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('DUENO')")
     @Operation(summary = "Crear una cancha para un dueño")
-    public ResponseEntity<CanchaResponse> crear(@RequestParam Long duenoId,
-                                                @Validated @RequestBody CanchaRequest request) {
-        return ResponseEntity.ok(canchaService.crearCancha(duenoId, request));
+    public ResponseEntity<CanchaResponse> crear(@Validated @RequestBody CanchaRequest request) {
+        return ResponseEntity.ok(canchaService.crearCancha(request));
     }
 
     @PutMapping("/{id}/horarios")
