@@ -1,0 +1,110 @@
+package com.playmatch.service.service;
+
+import com.playmatch.service.dto.CanchaRequest;
+import com.playmatch.service.dto.CanchaResponse;
+import com.playmatch.service.entity.Cancha;
+import com.playmatch.service.entity.Dueno;
+import com.playmatch.service.entity.Role;
+import com.playmatch.service.exception.NotFoundException;
+import com.playmatch.service.repository.CanchaRepository;
+import com.playmatch.service.repository.DuenoRepository;
+import com.playmatch.service.security.UserPrincipal;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+public class CanchaService {
+
+    private final CanchaRepository canchaRepository;
+    private final DuenoRepository duenoRepository;
+
+    public CanchaService(CanchaRepository canchaRepository, DuenoRepository duenoRepository) {
+        this.canchaRepository = canchaRepository;
+        this.duenoRepository = duenoRepository;
+    }
+
+    @Transactional
+    public CanchaResponse crearCancha(CanchaRequest request) {
+        UserPrincipal principal = getAuthenticatedPrincipal();
+        if (principal.getRole() != Role.DUENO) {
+            throw new AccessDeniedException("Solo un usuario con rol dueño puede crear canchas");
+        }
+        Dueno dueno = duenoRepository.findByUsuarioId(principal.getUsuarioId())
+                .orElseThrow(() -> new AccessDeniedException("No se encontró un dueño asociado al usuario autenticado"));
+        Cancha cancha = new Cancha();
+        cancha.setNombre(request.getNombre());
+        cancha.setDireccion(request.getDireccion());
+        cancha.setLatitud(request.getLatitud());
+        cancha.setLongitud(request.getLongitud());
+        cancha.setPrecioHora(request.getPrecioHora());
+        cancha.setHorarioApertura(request.getHorarioApertura());
+        cancha.setHorarioCierre(request.getHorarioCierre());
+        cancha.setDueno(dueno);
+        Cancha guardada = canchaRepository.save(cancha);
+        return toResponse(guardada);
+    }
+
+    private UserPrincipal getAuthenticatedPrincipal() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof UserPrincipal principal)) {
+            throw new AccessDeniedException("Usuario no autenticado");
+        }
+        return principal;
+    }
+
+    @Transactional(readOnly = true)
+    public List<CanchaResponse> buscarDisponibles(double latitud, double longitud, double radioKm) {
+        return canchaRepository.findAll().stream()
+                .filter(cancha -> distanciaKm(latitud, longitud, cancha.getLatitud(), cancha.getLongitud()) <= radioKm)
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public CanchaResponse actualizarHorarios(Long canchaId, CanchaRequest request) {
+        Cancha cancha = canchaRepository.findById(canchaId)
+                .orElseThrow(() -> new NotFoundException("Cancha no encontrada"));
+        UserPrincipal principal = getAuthenticatedPrincipal();
+        if (principal.getRole() != Role.DUENO) {
+            throw new AccessDeniedException("Solo un usuario con rol dueño puede actualizar canchas");
+        }
+        Dueno dueno = duenoRepository.findByUsuarioId(principal.getUsuarioId())
+                .orElseThrow(() -> new AccessDeniedException("No se encontró un dueño asociado al usuario autenticado"));
+        if (!cancha.getDueno().getId().equals(dueno.getId())) {
+            throw new AccessDeniedException("No puedes modificar canchas que pertenecen a otro dueño");
+        }
+        cancha.setHorarioApertura(request.getHorarioApertura());
+        cancha.setHorarioCierre(request.getHorarioCierre());
+        return toResponse(canchaRepository.save(cancha));
+    }
+
+    private double distanciaKm(double lat1, double lon1, double lat2, double lon2) {
+        double radioTierra = 6371;
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLon = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return radioTierra * c;
+    }
+
+    private CanchaResponse toResponse(Cancha cancha) {
+        CanchaResponse response = new CanchaResponse();
+        response.setId(cancha.getId());
+        response.setNombre(cancha.getNombre());
+        response.setDireccion(cancha.getDireccion());
+        response.setLatitud(cancha.getLatitud());
+        response.setLongitud(cancha.getLongitud());
+        response.setPrecioHora(cancha.getPrecioHora());
+        response.setHorarioApertura(cancha.getHorarioApertura());
+        response.setHorarioCierre(cancha.getHorarioCierre());
+        return response;
+    }
+}
