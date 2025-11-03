@@ -42,7 +42,7 @@ public class PartidoController {
 
     @PostMapping("/{id}/unirse")
     @Operation(summary = "Unirse a un partido")
-    public ResponseEntity<PartidoResponse> unirse(@PathVariable Long id, @RequestParam Long jugadorId) {
+    public ResponseEntity<PartidoResponse> unirse(@PathVariable("id") Long id, @RequestParam Long jugadorId) {
         return ResponseEntity.ok(partidoService.unirseAPartido(id, jugadorId));
     }
 }

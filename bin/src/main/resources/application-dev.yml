@@ -1,8 +1,9 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/playmatch
-    username: postgres
-    password: admin
+    url: jdbc:h2:mem:playmatch;DB_CLOSE_DELAY=-1;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: 
   jpa:
     hibernate:
       ddl-auto: update
@@ -26,14 +27,12 @@ management:
       exposure:
         include: health,info
   tracing:
-    enabled: true
-    sampling:
-      probability: 1.0
+    enabled: false
 
-# Telemetry toggle (disabled by default to simplify local run)
 otel:
   enabled: false
 
 springdoc:
   swagger-ui:
     path: /swagger-ui
+

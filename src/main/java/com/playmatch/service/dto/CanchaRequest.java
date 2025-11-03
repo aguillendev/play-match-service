@@ -5,6 +5,9 @@ import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 import java.time.LocalTime;
+import java.util.List;
+
+import com.playmatch.service.entity.Deporte;
 
 public class CanchaRequest {
 
@@ -25,6 +28,11 @@ public class CanchaRequest {
 
     private LocalTime horarioApertura;
     private LocalTime horarioCierre;
+
+    @NotNull
+    private Deporte tipo;
+
+    private List<HorarioIntervalDTO> horarios;
 
     public String getNombre() {
         return nombre;
@@ -80,5 +88,21 @@ public class CanchaRequest {
 
     public void setHorarioCierre(LocalTime horarioCierre) {
         this.horarioCierre = horarioCierre;
+    }
+
+    public Deporte getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(Deporte tipo) {
+        this.tipo = tipo;
+    }
+
+    public List<HorarioIntervalDTO> getHorarios() {
+        return horarios;
+    }
+
+    public void setHorarios(List<HorarioIntervalDTO> horarios) {
+        this.horarios = horarios;
     }
 }

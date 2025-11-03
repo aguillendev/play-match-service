@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -45,8 +46,30 @@ public class CanchaController {
 
     @PutMapping("/{id}/horarios")
     @Operation(summary = "Actualizar horarios de una cancha")
-    public ResponseEntity<CanchaResponse> actualizarHorarios(@PathVariable Long id,
+    public ResponseEntity<CanchaResponse> actualizarHorarios(@PathVariable("id") Long id,
                                                              @Validated @RequestBody CanchaRequest request) {
         return ResponseEntity.ok(canchaService.actualizarHorarios(id, request));
+    }
+
+    @GetMapping
+    @Operation(summary = "Listar todas las canchas")
+    public ResponseEntity<List<CanchaResponse>> listarTodas() {
+        return ResponseEntity.ok(canchaService.listarTodas());
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('DUENO')")
+    @Operation(summary = "Actualizar datos completos de una cancha")
+    public ResponseEntity<CanchaResponse> actualizar(@PathVariable("id") Long id,
+                                                     @Validated @RequestBody CanchaRequest request) {
+        return ResponseEntity.ok(canchaService.actualizarCancha(id, request));
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('DUENO')")
+    @Operation(summary = "Eliminar una cancha (si no tiene reservas)")
+    public ResponseEntity<Void> eliminar(@PathVariable("id") Long id) {
+        canchaService.eliminarCancha(id);
+        return ResponseEntity.noContent().build();
     }
 }

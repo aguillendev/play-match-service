@@ -15,4 +15,8 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
     List<Reserva> findOverlapping(@Param("cancha") Cancha cancha,
                                   @Param("inicio") LocalDateTime inicio,
                                   @Param("fin") LocalDateTime fin);
+
+    boolean existsByCancha(Cancha cancha);
+
+    boolean existsByCanchaAndInicioAfter(Cancha cancha, java.time.LocalDateTime inicio);
 }

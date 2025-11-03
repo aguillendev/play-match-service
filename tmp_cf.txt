@@ -1,0 +1,192 @@
+   1: import { useCallback, useEffect, useState } from 'react';
+   2: import { Alert, Box, Button, Grid, MenuItem, Paper, Snackbar, TextField, Typography } from '@mui/material';
+   3: import { useForm } from 'react-hook-form';
+   4: import { yupResolver } from '@hookform/resolvers/yup';
+   5: import * as yup from 'yup';
+   6: import { useCanchaStore } from '../store/useCanchaStore';
+   7: import { Deporte } from '../types';
+   8: 
+   9: const schema = yup.object({
+  10:   nombre: yup.string().required('Ingresa el nombre de la cancha'),
+  11:   direccion: yup.string().required('Ingresa la dirección'),
+  12:   tipo: yup.mixed<Deporte>().oneOf(['FUTBOL', 'PADEL', 'TENIS', 'BASQUET', 'OTRO']).required(),
+  13:   precioHora: yup
+  14:     .number()
+  15:     .typeError('Ingresa un valor numérico')
+  16:     .positive('Debe ser mayor a 0')
+  17:     .required('Ingresa el valor por hora'),
+  18: });
+  19: 
+  20: type FormData = yup.InferType<typeof schema>;
+  21: 
+  22: async function obtenerUbicacion(): Promise<{ latitud: number; longitud: number } | undefined> {
+  23:   if (typeof navigator === 'undefined' || !navigator.geolocation) {
+  24:     return undefined;
+  25:   }
+  26:   return new Promise((resolve) => {
+  27:     navigator.geolocation.getCurrentPosition(
+  28:       (position) => {
+  29:         resolve({ latitud: position.coords.latitude, longitud: position.coords.longitude });
+  30:       },
+  31:       () => resolve(undefined),
+  32:       { enableHighAccuracy: true, timeout: 5000 },
+  33:     );
+  34:   });
+  35: }
+  36: 
+  37: const tipos: Deporte[] = ['FUTBOL', 'PADEL', 'TENIS', 'BASQUET', 'OTRO'];
+  38: 
+  39: const CanchaForm = () => {
+  40:   const { register, handleSubmit, formState, reset } = useForm<FormData>({
+  41:     defaultValues: { nombre: '', direccion: '', tipo: 'FUTBOL', precioHora: 150 },
+  42:     resolver: yupResolver(schema),
+  43:   });
+  44:   const { errors, isSubmitting } = formState;
+  45:   const { canchas, fetchCanchas, addCancha, updateCancha, deleteCancha } = useCanchaStore((state) => ({
+  46:     canchas: state.canchas,
+  47:     fetchCanchas: state.fetchCanchas,
+  48:     addCancha: state.addCancha,
+  49:     updateCancha: state.updateCancha,
+  50:     deleteCancha: state.deleteCancha,
+  51:   }));
+  52:   const [alerta, setAlerta] = useState<string | undefined>();
+  53:   const [error, setError] = useState<string | undefined>();
+  54:   const [editingId, setEditingId] = useState<number | undefined>(undefined);
+  55: 
+  56:   useEffect(() => {
+  57:     if (!canchas.length) {
+  58:       fetchCanchas();
+  59:     }
+  60:   }, [canchas.length, fetchCanchas]);
+  61: 
+  62:   const onSubmit = useCallback(
+  63:     async (data: FormData) => {
+  64:       setError(undefined);
+  65:       try {
+  66:         const ubicacion = await obtenerUbicacion();
+  67:         if (editingId) {
+  68:           const actualizada = await updateCancha(editingId, {
+  69:             ...data,
+  70:             latitud: ubicacion?.latitud,
+  71:             longitud: ubicacion?.longitud,
+  72:             horarios: [],
+  73:           } as any);
+  74:           if (actualizada) {
+  75:             reset();
+  76:             setEditingId(undefined);
+  77:             setAlerta(`Cancha "${actualizada.nombre}" actualizada.`);
+  78:           }
+  79:         } else {
+  80:           const nueva = await addCancha({
+  81:             ...data,
+  82:             latitud: ubicacion?.latitud,
+  83:             longitud: ubicacion?.longitud,
+  84:             horarios: [],
+  85:           } as any);
+  86:           if (nueva) {
+  87:             reset();
+  88:             setAlerta(`Cancha "${nueva.nombre}" registrada correctamente.`);
+  89:           }
+  90:         }
+  91:       } catch (e) {
+  92:         console.error(e);
+  93:         setError('Ocurrió un error al registrar la cancha');
+  94:       }
+  95:     },
+  96:     [addCancha, updateCancha, editingId, reset],
+  97:   );
+  98: 
+  99:   return (
+ 100:     <Box>
+ 101:       <Typography variant="h4" gutterBottom>
+ 102:         Canchas
+ 103:       </Typography>
+ 104:       <Paper sx={{ p: 3 }}>
+ 105:         <form onSubmit={handleSubmit(onSubmit)} noValidate>
+ 106:           <Grid container spacing={2}>
+ 107:             <Grid item xs={12} md={6}>
+ 108:               <TextField label="Nombre" fullWidth {...register('nombre')} error={Boolean(errors.nombre)} helperText={errors.nombre?.message} />
+ 109:             </Grid>
+ 110:             <Grid item xs={12} md={6}>
+ 111:               <TextField label="Dirección" fullWidth {...register('direccion')} error={Boolean(errors.direccion)} helperText={errors.direccion?.message} />
+ 112:             </Grid>
+ 113:             <Grid item xs={12} md={6}>
+ 114:               <TextField select label="Tipo de cancha" fullWidth {...register('tipo')} error={Boolean(errors.tipo)}>
+ 115:                 {tipos.map((tipo) => (
+ 116:                   <MenuItem key={tipo} value={tipo}>
+ 117:                     {tipo}
+ 118:                   </MenuItem>
+ 119:                 ))}
+ 120:               </TextField>
+ 121:             </Grid>
+ 122:             <Grid item xs={12} md={6}>
+ 123:               <TextField label="Valor por hora" type="number" fullWidth {...register('precioHora')} error={Boolean(errors.precioHora)} helperText={errors.precioHora?.message} />
+ 124:             </Grid>
+ 125:             <Grid item xs={12}>
+ 126:               <Alert severity="info">Al guardar intentaremos obtener tu ubicación actual para asociarla a la cancha.</Alert>
+ 127:             </Grid>
+ 128:             {error && (
+ 129:               <Grid item xs={12}>
+ 130:                 <Alert severity="error">{error}</Alert>
+ 131:               </Grid>
+ 132:             )}
+ 133:             <Grid item xs={12}>
+ 134:               <Box display="flex" justifyContent="flex-end" gap={2}>
+ 135:                 <Button
+ 136:                   variant="outlined"
+ 137:                   onClick={() => {
+ 138:                     reset();
+ 139:                     setEditingId(undefined);
+ 140:                   }}
+ 141:                   disabled={isSubmitting}
+ 142:                 >
+ 143:                   Limpiar
+ 144:                 </Button>
+ 145:                 <Button type="submit" variant="contained" disabled={isSubmitting}>
+ 146:                   {isSubmitting ? 'Guardando...' : editingId ? 'Guardar cambios' : 'Registrar cancha'}
+ 147:                 </Button>
+ 148:               </Box>
+ 149:             </Grid>
+ 150:           </Grid>
+ 151:         </form>
+ 152:       </Paper>
+ 153:       <Box mt={4}>
+ 154:         <Typography variant="h5" gutterBottom>
+ 155:           Canchas registradas
+ 156:         </Typography>
+ 157:         <Grid container spacing={2}>
+ 158:           {canchas.map((c) => (
+ 159:             <Grid item xs={12} md={6} key={c.id}>
+ 160:               <Paper sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+ 161:                 <Box>
+ 162:                   <Typography variant="subtitle1">{c.nombre}</Typography>
+ 163:                   <Typography variant="body2" color="text.secondary">
+ 164:                     {c.direccion} • {c.tipo} • Bs. {c.precioHora}
+ 165:                   </Typography>
+ 166:                 </Box>
+ 167:                 <Box display="flex" gap={1}>
+ 168:                   <Button
+ 169:                     variant="outlined"
+ 170:                     onClick={() => {
+ 171:                       setEditingId(c.id);
+ 172:                       reset({ nombre: c.nombre, direccion: c.direccion, tipo: c.tipo as any, precioHora: c.precioHora });
+ 173:                     }}
+ 174:                   >
+ 175:                     Editar
+ 176:                   </Button>
+ 177:                   <Button color="error" variant="outlined" onClick={() => deleteCancha(c.id)}>
+ 178:                     Eliminar
+ 179:                   </Button>
+ 180:                 </Box>
+ 181:               </Paper>
+ 182:             </Grid>
+ 183:           ))}
+ 184:         </Grid>
+ 185:       </Box>
+ 186:       <Snackbar open={Boolean(alerta)} autoHideDuration={4000} onClose={() => setAlerta(undefined)} message={alerta} />
+ 187:     </Box>
+ 188:   );
+ 189: };
+ 190: 
+ 191: export default CanchaForm;
+ 192: 

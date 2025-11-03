@@ -1,14 +1,6 @@
 package com.playmatch.service.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalTime;
@@ -42,12 +34,19 @@ public class Cancha {
 
     private LocalTime horarioCierre;
 
+    @Enumerated(EnumType.STRING)
+    @Column
+    private Deporte tipo;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "dueno_id")
     private Dueno dueno;
 
-    @OneToMany(mappedBy = "cancha")
+    @OneToMany(mappedBy = "cancha", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Reserva> reservas = new HashSet<>();
+
+    @OneToMany(mappedBy = "cancha", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<CanchaHorario> horarios = new HashSet<>();
 
     public Long getId() {
         return id;
@@ -109,6 +108,14 @@ public class Cancha {
         this.horarioCierre = horarioCierre;
     }
 
+    public Deporte getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(Deporte tipo) {
+        this.tipo = tipo;
+    }
+
     public Dueno getDueno() {
         return dueno;
     }
@@ -123,5 +130,13 @@ public class Cancha {
 
     public void setReservas(Set<Reserva> reservas) {
         this.reservas = reservas;
+    }
+
+    public Set<CanchaHorario> getHorarios() {
+        return horarios;
+    }
+
+    public void setHorarios(Set<CanchaHorario> horarios) {
+        this.horarios = horarios;
     }
 }

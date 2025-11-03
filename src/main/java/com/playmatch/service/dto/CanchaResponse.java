@@ -2,6 +2,9 @@ package com.playmatch.service.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalTime;
+import java.util.List;
+
+import com.playmatch.service.entity.Deporte;
 
 public class CanchaResponse {
     private Long id;
@@ -12,6 +15,9 @@ public class CanchaResponse {
     private BigDecimal precioHora;
     private LocalTime horarioApertura;
     private LocalTime horarioCierre;
+    private Deporte tipo;
+    private List<HorarioIntervalDTO> horarios;
+    private boolean tieneReservasFuturas;
 
     public Long getId() {
         return id;
@@ -75,5 +81,29 @@ public class CanchaResponse {
 
     public void setHorarioCierre(LocalTime horarioCierre) {
         this.horarioCierre = horarioCierre;
+    }
+
+    public Deporte getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(Deporte tipo) {
+        this.tipo = tipo;
+    }
+
+    public List<HorarioIntervalDTO> getHorarios() {
+        return horarios;
+    }
+
+    public void setHorarios(List<HorarioIntervalDTO> horarios) {
+        this.horarios = horarios;
+    }
+
+    public boolean isTieneReservasFuturas() {
+        return tieneReservasFuturas;
+    }
+
+    public void setTieneReservasFuturas(boolean tieneReservasFuturas) {
+        this.tieneReservasFuturas = tieneReservasFuturas;
     }
 }

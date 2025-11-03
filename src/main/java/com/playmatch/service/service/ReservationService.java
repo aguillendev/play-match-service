@@ -53,6 +53,22 @@ public class ReservationService {
             throw new BadRequestException("La hora de fin debe ser posterior a la de inicio");
         }
 
+        // Validar que la reserva cae dentro de los horarios habilitados
+        java.time.LocalTime inicioTime = request.getInicio().toLocalTime();
+        java.time.LocalTime finTime = request.getFin().toLocalTime();
+        boolean permitido;
+        if (cancha.getHorarios() != null && !cancha.getHorarios().isEmpty()) {
+            permitido = cancha.getHorarios().stream().anyMatch(h ->
+                    !inicioTime.isBefore(h.getInicio()) && !finTime.isAfter(h.getFin()));
+        } else {
+            // Fallback a ventana unica de apertura/cierre si no hay intervalos cargados
+            permitido = (cancha.getHorarioApertura() == null || !inicioTime.isBefore(cancha.getHorarioApertura()))
+                    && (cancha.getHorarioCierre() == null || !finTime.isAfter(cancha.getHorarioCierre()));
+        }
+        if (!permitido) {
+            throw new BadRequestException("La reserva no esta dentro de los horarios disponibles de la cancha");
+        }
+
         List<Reserva> existentes = reservaRepository.findOverlapping(cancha, request.getInicio(), request.getFin());
         if (!existentes.isEmpty()) {
             throw new BadRequestException("La cancha ya está reservada para el horario solicitado");
