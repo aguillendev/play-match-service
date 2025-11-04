@@ -38,8 +38,8 @@ public class CanchaController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('DUENO')")
-    @Operation(summary = "Crear una cancha para un dueño")
+    @PreAuthorize("hasRole('ADMINISTRADOR_CANCHA')")
+    @Operation(summary = "Crear una cancha para un administrador de cancha")
     public ResponseEntity<CanchaResponse> crear(@Validated @RequestBody CanchaRequest request) {
         return ResponseEntity.ok(canchaService.crearCancha(request));
     }
@@ -58,7 +58,7 @@ public class CanchaController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('DUENO')")
+    @PreAuthorize("hasRole('ADMINISTRADOR_CANCHA')")
     @Operation(summary = "Actualizar datos completos de una cancha")
     public ResponseEntity<CanchaResponse> actualizar(@PathVariable("id") Long id,
                                                      @Validated @RequestBody CanchaRequest request) {
@@ -66,7 +66,7 @@ public class CanchaController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('DUENO')")
+    @PreAuthorize("hasRole('ADMINISTRADOR_CANCHA')")
     @Operation(summary = "Eliminar una cancha (si no tiene reservas)")
     public ResponseEntity<Void> eliminar(@PathVariable("id") Long id) {
         canchaService.eliminarCancha(id);

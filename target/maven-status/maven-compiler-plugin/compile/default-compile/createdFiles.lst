@@ -12,6 +12,7 @@ com\playmatch\service\dto\PartidoResponse.class
 com\playmatch\service\entity\Usuario.class
 com\playmatch\service\entity\Deporte.class
 com\playmatch\service\dto\ReservaRequest.class
+com\playmatch\service\repository\AdministradorCanchaRepository.class
 com\playmatch\service\entity\Jugador.class
 com\playmatch\service\security\JwtTokenProvider.class
 com\playmatch\service\repository\PartidoRepository.class
@@ -19,9 +20,9 @@ com\playmatch\service\dto\PartidoRequest.class
 com\playmatch\service\service\ReporteService.class
 com\playmatch\service\repository\JugadorRepository.class
 com\playmatch\service\repository\CanchaRepository.class
-com\playmatch\service\repository\DuenoRepository.class
 com\playmatch\service\dto\CanchaRequest.class
 com\playmatch\service\PlayMatchServiceApplication.class
+com\playmatch\service\entity\Reserva$EstadoReserva.class
 com\playmatch\service\controller\AuthController.class
 com\playmatch\service\service\CanchaService.class
 com\playmatch\service\dto\RegisterRequest.class
@@ -31,7 +32,6 @@ com\playmatch\service\service\ReservationService.class
 com\playmatch\service\repository\ReservaRepository.class
 com\playmatch\service\security\CustomUserDetailsService.class
 com\playmatch\service\controller\PartidoController.class
-com\playmatch\service\entity\Dueno.class
 com\playmatch\service\entity\Role.class
 com\playmatch\service\exception\GlobalExceptionHandler.class
 com\playmatch\service\security\UserPrincipal.class
@@ -41,6 +41,7 @@ com\playmatch\service\entity\CanchaHorario.class
 com\playmatch\service\dto\AuthResponse.class
 com\playmatch\service\exception\BadRequestException.class
 com\playmatch\service\controller\ReservaController.class
+com\playmatch\service\entity\AdministradorCancha.class
 com\playmatch\service\config\CorsConfig.class
 com\playmatch\service\security\JwtAuthenticationFilter.class
 com\playmatch\service\entity\Cancha.class

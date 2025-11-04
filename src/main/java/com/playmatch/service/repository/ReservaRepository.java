@@ -1,6 +1,7 @@
 package com.playmatch.service.repository;
 
 import com.playmatch.service.entity.Cancha;
+import com.playmatch.service.entity.Jugador;
 import com.playmatch.service.entity.Reserva;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -19,4 +20,8 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
     boolean existsByCancha(Cancha cancha);
 
     boolean existsByCanchaAndInicioAfter(Cancha cancha, java.time.LocalDateTime inicio);
+
+    List<Reserva> findByJugador(Jugador jugador);
+
+    List<Reserva> findByCancha(Cancha cancha);
 }

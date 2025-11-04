@@ -5,7 +5,6 @@ C:\Users\Abel\Desktop\play-match-service\src\main\java\com\playmatch\service\rep
 C:\Users\Abel\Desktop\play-match-service\src\main\java\com\playmatch\service\service\PartidoService.java
 C:\Users\Abel\Desktop\play-match-service\src\main\java\com\playmatch\service\entity\CanchaHorario.java
 C:\Users\Abel\Desktop\play-match-service\src\main\java\com\playmatch\service\dto\LoginRequest.java
-C:\Users\Abel\Desktop\play-match-service\src\main\java\com\playmatch\service\repository\DuenoRepository.java
 C:\Users\Abel\Desktop\play-match-service\src\main\java\com\playmatch\service\security\JwtAuthenticationFilter.java
 C:\Users\Abel\Desktop\play-match-service\src\main\java\com\playmatch\service\dto\CanchaResponse.java
 C:\Users\Abel\Desktop\play-match-service\src\main\java\com\playmatch\service\dto\HorarioIntervalDTO.java
@@ -25,7 +24,6 @@ C:\Users\Abel\Desktop\play-match-service\src\main\java\com\playmatch\service\con
 C:\Users\Abel\Desktop\play-match-service\src\main\java\com\playmatch\service\repository\PartidoRepository.java
 C:\Users\Abel\Desktop\play-match-service\src\main\java\com\playmatch\service\controller\ReservaController.java
 C:\Users\Abel\Desktop\play-match-service\src\main\java\com\playmatch\service\dto\ReservaRequest.java
-C:\Users\Abel\Desktop\play-match-service\src\main\java\com\playmatch\service\entity\Dueno.java
 C:\Users\Abel\Desktop\play-match-service\src\main\java\com\playmatch\service\controller\CanchaController.java
 C:\Users\Abel\Desktop\play-match-service\src\main\java\com\playmatch\service\exception\NotFoundException.java
 C:\Users\Abel\Desktop\play-match-service\src\main\java\com\playmatch\service\security\SecurityConfig.java
@@ -35,10 +33,12 @@ C:\Users\Abel\Desktop\play-match-service\src\main\java\com\playmatch\service\dto
 C:\Users\Abel\Desktop\play-match-service\src\main\java\com\playmatch\service\dto\PartidoRequest.java
 C:\Users\Abel\Desktop\play-match-service\src\main\java\com\playmatch\service\entity\Cancha.java
 C:\Users\Abel\Desktop\play-match-service\src\main\java\com\playmatch\service\dto\CanchaRequest.java
+C:\Users\Abel\Desktop\play-match-service\src\main\java\com\playmatch\service\repository\AdministradorCanchaRepository.java
 C:\Users\Abel\Desktop\play-match-service\src\main\java\com\playmatch\service\dto\PartidoResponse.java
 C:\Users\Abel\Desktop\play-match-service\src\main\java\com\playmatch\service\service\ReporteService.java
 C:\Users\Abel\Desktop\play-match-service\src\main\java\com\playmatch\service\entity\Usuario.java
 C:\Users\Abel\Desktop\play-match-service\src\main\java\com\playmatch\service\dto\ReporteReservasResponse.java
+C:\Users\Abel\Desktop\play-match-service\src\main\java\com\playmatch\service\entity\AdministradorCancha.java
 C:\Users\Abel\Desktop\play-match-service\src\main\java\com\playmatch\service\exception\GlobalExceptionHandler.java
 C:\Users\Abel\Desktop\play-match-service\src\main\java\com\playmatch\service\security\UserPrincipal.java
 C:\Users\Abel\Desktop\play-match-service\src\main\java\com\playmatch\service\entity\Role.java

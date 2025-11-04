@@ -3,12 +3,12 @@ package com.playmatch.service.service;
 import com.playmatch.service.dto.AuthResponse;
 import com.playmatch.service.dto.LoginRequest;
 import com.playmatch.service.dto.RegisterRequest;
-import com.playmatch.service.entity.Dueno;
+import com.playmatch.service.entity.AdministradorCancha;
 import com.playmatch.service.entity.Jugador;
 import com.playmatch.service.entity.Role;
 import com.playmatch.service.entity.Usuario;
 import com.playmatch.service.exception.BadRequestException;
-import com.playmatch.service.repository.DuenoRepository;
+import com.playmatch.service.repository.AdministradorCanchaRepository;
 import com.playmatch.service.repository.JugadorRepository;
 import com.playmatch.service.repository.UsuarioRepository;
 import com.playmatch.service.security.JwtTokenProvider;
@@ -24,20 +24,20 @@ public class AuthService {
 
     private final UsuarioRepository usuarioRepository;
     private final JugadorRepository jugadorRepository;
-    private final DuenoRepository duenoRepository;
+    private final AdministradorCanchaRepository administradorCanchaRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
 
     public AuthService(UsuarioRepository usuarioRepository,
                        JugadorRepository jugadorRepository,
-                       DuenoRepository duenoRepository,
+                       AdministradorCanchaRepository administradorCanchaRepository,
                        PasswordEncoder passwordEncoder,
                        AuthenticationManager authenticationManager,
                        JwtTokenProvider jwtTokenProvider) {
         this.usuarioRepository = usuarioRepository;
         this.jugadorRepository = jugadorRepository;
-        this.duenoRepository = duenoRepository;
+        this.administradorCanchaRepository = administradorCanchaRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtTokenProvider = jwtTokenProvider;
@@ -62,13 +62,13 @@ public class AuthService {
             jugador.setUsuario(usuario);
             usuario.setJugador(jugador);
             jugadorRepository.save(jugador);
-        } else if (request.getRole() == Role.DUENO) {
-            Dueno dueno = new Dueno();
-            dueno.setNombre(request.getNombre());
-            dueno.setTelefono(request.getTelefono());
-            dueno.setUsuario(usuario);
-            usuario.setDueno(dueno);
-            duenoRepository.save(dueno);
+        } else if (request.getRole() == Role.ADMINISTRADOR_CANCHA) {
+            AdministradorCancha administradorCancha = new AdministradorCancha();
+            administradorCancha.setNombre(request.getNombre());
+            administradorCancha.setTelefono(request.getTelefono());
+            administradorCancha.setUsuario(usuario);
+            usuario.setAdministradorCancha(administradorCancha);
+            administradorCanchaRepository.save(administradorCancha);
         } else {
             throw new BadRequestException("Rol no soportado");
         }

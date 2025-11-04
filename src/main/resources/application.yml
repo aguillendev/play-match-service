@@ -10,15 +10,17 @@ spring:
       hibernate:
         format_sql: true
     show-sql: false
+  flyway:
+    enabled: false
 
 security:
   jwt:
     secret: "01234567890123456789012345678901"
     expiration-seconds: 7200
 
-logging:
-  pattern:
-    console: '{"timestamp":"%d{ISO8601}","level":"%5p","logger":"%c{1}","trace":"%X{traceId}","span":"%X{spanId}","message":"%m"}%n'
+#logging:
+#  pattern:
+#    console: '{"timestamp":"%d{ISO8601}","level":"%5p","logger":"%c{1}","trace":"%X{traceId}","span":"%X{spanId}","message":"%m"}%n'
 
 management:
   endpoints:
@@ -32,7 +34,7 @@ management:
 
 # Telemetry toggle (disabled by default to simplify local run)
 otel:
-  enabled: false
+  enabled: true
 
 springdoc:
   swagger-ui:

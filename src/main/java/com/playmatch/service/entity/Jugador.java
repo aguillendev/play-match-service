@@ -28,7 +28,7 @@ public class Jugador {
     @Column(nullable = false)
     private String telefono;
 
-    @OneToOne(optional = false, cascade = CascadeType.ALL)
+    @OneToOne(optional = false, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 

@@ -32,7 +32,7 @@ public class Usuario {
     private Jugador jugador;
 
     @OneToOne(mappedBy = "usuario")
-    private Dueno dueno;
+    private AdministradorCancha administradorCancha;
 
     public Long getId() {
         return id;
@@ -70,11 +70,11 @@ public class Usuario {
         this.jugador = jugador;
     }
 
-    public Dueno getDueno() {
-        return dueno;
+    public AdministradorCancha getAdministradorCancha() {
+        return administradorCancha;
     }
 
-    public void setDueno(Dueno dueno) {
-        this.dueno = dueno;
+    public void setAdministradorCancha(AdministradorCancha administradorCancha) {
+        this.administradorCancha = administradorCancha;
     }
 }

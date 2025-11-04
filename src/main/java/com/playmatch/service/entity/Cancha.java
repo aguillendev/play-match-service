@@ -39,8 +39,8 @@ public class Cancha {
     private Deporte tipo;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "dueno_id")
-    private Dueno dueno;
+    @JoinColumn(name = "administrador_cancha_id")
+    private AdministradorCancha administradorCancha;
 
     @OneToMany(mappedBy = "cancha", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Reserva> reservas = new HashSet<>();
@@ -116,12 +116,12 @@ public class Cancha {
         this.tipo = tipo;
     }
 
-    public Dueno getDueno() {
-        return dueno;
+    public AdministradorCancha getAdministradorCancha() {
+        return administradorCancha;
     }
 
-    public void setDueno(Dueno dueno) {
-        this.dueno = dueno;
+    public void setAdministradorCancha(AdministradorCancha administradorCancha) {
+        this.administradorCancha = administradorCancha;
     }
 
     public Set<Reserva> getReservas() {

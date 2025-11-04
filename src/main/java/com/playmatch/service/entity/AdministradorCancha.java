@@ -15,8 +15,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "duenos")
-public class Dueno {
+@Table(name = "administradores_cancha")
+public class AdministradorCancha {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,11 +28,11 @@ public class Dueno {
     @Column(nullable = false)
     private String telefono;
 
-    @OneToOne(optional = false, cascade = CascadeType.ALL)
+    @OneToOne(optional = false, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 
-    @OneToMany(mappedBy = "dueno", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "administradorCancha", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Cancha> canchas = new HashSet<>();
 
     public Long getId() {

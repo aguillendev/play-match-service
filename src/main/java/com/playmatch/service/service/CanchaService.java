@@ -3,13 +3,13 @@ package com.playmatch.service.service;
 import com.playmatch.service.dto.CanchaRequest;
 import com.playmatch.service.dto.CanchaResponse;
 import com.playmatch.service.dto.HorarioIntervalDTO;
+import com.playmatch.service.entity.AdministradorCancha;
 import com.playmatch.service.entity.Cancha;
 import com.playmatch.service.entity.CanchaHorario;
-import com.playmatch.service.entity.Dueno;
 import com.playmatch.service.entity.Role;
 import com.playmatch.service.exception.NotFoundException;
+import com.playmatch.service.repository.AdministradorCanchaRepository;
 import com.playmatch.service.repository.CanchaRepository;
-import com.playmatch.service.repository.DuenoRepository;
 import com.playmatch.service.repository.ReservaRepository;
 import com.playmatch.service.security.UserPrincipal;
 import org.springframework.security.access.AccessDeniedException;
@@ -28,23 +28,23 @@ import java.util.stream.Collectors;
 public class CanchaService {
 
     private final CanchaRepository canchaRepository;
-    private final DuenoRepository duenoRepository;
+    private final AdministradorCanchaRepository administradorCanchaRepository;
     private final ReservaRepository reservaRepository;
 
-    public CanchaService(CanchaRepository canchaRepository, DuenoRepository duenoRepository, ReservaRepository reservaRepository) {
+    public CanchaService(CanchaRepository canchaRepository, AdministradorCanchaRepository administradorCanchaRepository, ReservaRepository reservaRepository) {
         this.canchaRepository = canchaRepository;
-        this.duenoRepository = duenoRepository;
+        this.administradorCanchaRepository = administradorCanchaRepository;
         this.reservaRepository = reservaRepository;
     }
 
     @Transactional
     public CanchaResponse crearCancha(CanchaRequest request) {
         UserPrincipal principal = getAuthenticatedPrincipal();
-        if (principal.getRole() != Role.DUENO) {
-            throw new AccessDeniedException("Solo un usuario con rol dueño puede crear canchas");
+        if (principal.getRole() != Role.ADMINISTRADOR_CANCHA) {
+            throw new AccessDeniedException("Solo un usuario con rol administrador de cancha puede crear canchas");
         }
-        Dueno dueno = duenoRepository.findByUsuarioId(principal.getUsuarioId())
-                .orElseThrow(() -> new AccessDeniedException("No se encontró un dueño asociado al usuario autenticado"));
+        AdministradorCancha administradorCancha = administradorCanchaRepository.findByUsuarioId(principal.getUsuarioId())
+                .orElseThrow(() -> new AccessDeniedException("No se encontró un administrador de cancha asociado al usuario autenticado"));
         Cancha cancha = new Cancha();
         cancha.setNombre(request.getNombre());
         cancha.setDireccion(request.getDireccion());
@@ -55,7 +55,7 @@ public class CanchaService {
         cancha.setHorarioCierre(request.getHorarioCierre());
         cancha.setTipo(request.getTipo());
         applyHorarios(cancha, request.getHorarios());
-        cancha.setDueno(dueno);
+        cancha.setAdministradorCancha(administradorCancha);
         Cancha guardada = canchaRepository.save(cancha);
         return toResponse(guardada);
     }
@@ -81,13 +81,13 @@ public class CanchaService {
         Cancha cancha = canchaRepository.findById(canchaId)
                 .orElseThrow(() -> new NotFoundException("Cancha no encontrada"));
         UserPrincipal principal = getAuthenticatedPrincipal();
-        if (principal.getRole() != Role.DUENO) {
-            throw new AccessDeniedException("Solo un usuario con rol dueño puede actualizar canchas");
+        if (principal.getRole() != Role.ADMINISTRADOR_CANCHA) {
+            throw new AccessDeniedException("Solo un usuario con rol administrador de cancha puede actualizar canchas");
         }
-        Dueno dueno = duenoRepository.findByUsuarioId(principal.getUsuarioId())
-                .orElseThrow(() -> new AccessDeniedException("No se encontró un dueño asociado al usuario autenticado"));
-        if (!cancha.getDueno().getId().equals(dueno.getId())) {
-            throw new AccessDeniedException("No puedes modificar canchas que pertenecen a otro dueño");
+        AdministradorCancha administradorCancha = administradorCanchaRepository.findByUsuarioId(principal.getUsuarioId())
+                .orElseThrow(() -> new AccessDeniedException("No se encontró un administrador de cancha asociado al usuario autenticado"));
+        if (!cancha.getAdministradorCancha().getId().equals(administradorCancha.getId())) {
+            throw new AccessDeniedException("No puedes modificar canchas que pertenecen a otro administrador");
         }
         cancha.setHorarioApertura(request.getHorarioApertura());
         cancha.setHorarioCierre(request.getHorarioCierre());
@@ -107,13 +107,13 @@ public class CanchaService {
         Cancha cancha = canchaRepository.findById(canchaId)
                 .orElseThrow(() -> new NotFoundException("Cancha no encontrada"));
         UserPrincipal principal = getAuthenticatedPrincipal();
-        if (principal.getRole() != Role.DUENO) {
-            throw new AccessDeniedException("Solo un usuario con rol due��o puede actualizar canchas");
+        if (principal.getRole() != Role.ADMINISTRADOR_CANCHA) {
+            throw new AccessDeniedException("Solo un usuario con rol administrador de cancha puede actualizar canchas");
         }
-        Dueno dueno = duenoRepository.findByUsuarioId(principal.getUsuarioId())
-                .orElseThrow(() -> new AccessDeniedException("No se encontr�� un due��o asociado al usuario autenticado"));
-        if (!cancha.getDueno().getId().equals(dueno.getId())) {
-            throw new AccessDeniedException("No puedes modificar canchas que pertenecen a otro due��o");
+        AdministradorCancha administradorCancha = administradorCanchaRepository.findByUsuarioId(principal.getUsuarioId())
+                .orElseThrow(() -> new AccessDeniedException("No se encontró un administrador de cancha asociado al usuario autenticado"));
+        if (!cancha.getAdministradorCancha().getId().equals(administradorCancha.getId())) {
+            throw new AccessDeniedException("No puedes modificar canchas que pertenecen a otro administrador");
         }
         cancha.setNombre(request.getNombre());
         cancha.setDireccion(request.getDireccion());
@@ -132,13 +132,13 @@ public class CanchaService {
         Cancha cancha = canchaRepository.findById(canchaId)
                 .orElseThrow(() -> new NotFoundException("Cancha no encontrada"));
         UserPrincipal principal = getAuthenticatedPrincipal();
-        if (principal.getRole() != Role.DUENO) {
-            throw new AccessDeniedException("Solo un usuario con rol due��o puede eliminar canchas");
+        if (principal.getRole() != Role.ADMINISTRADOR_CANCHA) {
+            throw new AccessDeniedException("Solo un usuario con rol administrador de cancha puede eliminar canchas");
         }
-        Dueno dueno = duenoRepository.findByUsuarioId(principal.getUsuarioId())
-                .orElseThrow(() -> new AccessDeniedException("No se encontr�� un due��o asociado al usuario autenticado"));
-        if (!cancha.getDueno().getId().equals(dueno.getId())) {
-            throw new AccessDeniedException("No puedes eliminar canchas que pertenecen a otro due��o");
+        AdministradorCancha administradorCancha = administradorCanchaRepository.findByUsuarioId(principal.getUsuarioId())
+                .orElseThrow(() -> new AccessDeniedException("No se encontró un administrador de cancha asociado al usuario autenticado"));
+        if (!cancha.getAdministradorCancha().getId().equals(administradorCancha.getId())) {
+            throw new AccessDeniedException("No puedes eliminar canchas que pertenecen a otro administrador");
         }
         if (reservaRepository.existsByCancha(cancha)) {
             throw new AccessDeniedException("No se puede eliminar: la cancha tiene reservas asociadas");

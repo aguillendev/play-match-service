@@ -2,6 +2,8 @@ package com.playmatch.service.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -14,6 +16,10 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "reservas")
 public class Reserva {
+
+    public enum EstadoReserva {
+        PENDIENTE, CONFIRMADA, CANCELADA
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,6 +38,13 @@ public class Reserva {
 
     @Column(nullable = false)
     private LocalDateTime fin;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = true)  // Temporalmente nullable para migración
+    private EstadoReserva estado = EstadoReserva.PENDIENTE;
+
+    @Column
+    private Double monto;
 
     public Long getId() {
         return id;
@@ -67,5 +80,21 @@ public class Reserva {
 
     public void setFin(LocalDateTime fin) {
         this.fin = fin;
+    }
+
+    public EstadoReserva getEstado() {
+        return estado;
+    }
+
+    public void setEstado(EstadoReserva estado) {
+        this.estado = estado;
+    }
+
+    public Double getMonto() {
+        return monto;
+    }
+
+    public void setMonto(Double monto) {
+        this.monto = monto;
     }
 }

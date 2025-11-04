@@ -23,9 +23,17 @@ public class ReporteController {
 
     @GetMapping("/reservas")
     @Operation(summary = "Reporte de reservas por periodo")
-    public ResponseEntity<List<ReporteReservasResponse>> reservas(@RequestParam Long duenoId,
-                                                                  @RequestParam(defaultValue = "mes") String periodo) {
-        // Por ahora solo soportamos el periodo mensual y devolvemos el acumulado diario
-        return ResponseEntity.ok(reporteService.reporteReservas(duenoId));
+    public ResponseEntity<List<ReporteReservasResponse>> reservas(
+            @RequestParam(name = "administradorCanchaId", required = false) Long administradorCanchaId,
+            @RequestParam(name = "canchaId", required = false) Long canchaId,
+            @RequestParam(name = "periodo", defaultValue = "mes") String periodo) {
+        // Soporta ambos parámetros: administradorCanchaId (todas las canchas del administrador) o canchaId (una cancha específica)
+        if (canchaId != null) {
+            return ResponseEntity.ok(reporteService.reporteReservasPorCancha(canchaId, periodo));
+        } else if (administradorCanchaId != null) {
+            return ResponseEntity.ok(reporteService.reporteReservas(administradorCanchaId, periodo));
+        } else {
+            throw new IllegalArgumentException("Debe proporcionar administradorCanchaId o canchaId");
+        }
     }
 }
