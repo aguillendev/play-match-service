@@ -22,3 +22,71 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
+
+# IntelliJ IDEA
+# Directorio de configuración y archivos de proyecto de IntelliJ/JetBrains
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Carpeta de salida por defecto de IntelliJ
+out/
+
+# Archivos volátiles dentro de .idea (por si .idea está versionado)
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/dictionaries
+.idea/**/shelf
+.idea/**/libraries
+.idea/**/modules.xml
+.idea/**/gradle.xml
+.idea/**/aws.xml
+.idea/**/contentModel.xml
+.idea/**/httpRequests/
+.idea/**/dataSources/
+.idea/**/dataSources.ids
+
+# Visual Studio Code
+.vscode/
+
+# Maven
+target/
+dependency-reduced-pom.xml
+buildNumber.properties
+release.properties
+
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Maven Wrapper JAR (excepción porque arriba se ignoran *.jar)
+!.mvn/wrapper/maven-wrapper.jar
+
+# Eclipse / Spring Tool Suite
+.project
+.classpath
+.settings/
+.factorypath
+.springBeans
+.sts4-cache/
+.apt_generated/
+bin/
+
+# NetBeans
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Spring Boot runtime
+spring.log
+*.pid
