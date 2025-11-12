@@ -72,6 +72,22 @@ public class ReservaController {
                 canchaId, estado, fechaDesde, fechaHasta, cliente, ordenarPor, direccion));
     }
 
+    @GetMapping("/administrador")
+    @PreAuthorize("hasRole('ADMINISTRADOR_CANCHA')")
+    @Operation(summary = "Listar todas las reservas de todas las canchas del administrador autenticado",
+               description = "Retorna todas las reservas de las canchas que pertenecen al administrador logueado, con filtros opcionales")
+    public ResponseEntity<List<ReservaResponse>> listarReservasDelAdministrador(
+            @RequestParam(required = false) String estado,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaDesde,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaHasta,
+            @RequestParam(required = false) Long canchaId,
+            @RequestParam(required = false) String cliente,
+            @RequestParam(defaultValue = "fecha") String ordenarPor,
+            @RequestParam(defaultValue = "desc") String direccion) {
+        return ResponseEntity.ok(reservationService.listarReservasDelAdministrador(
+                estado, fechaDesde, fechaHasta, canchaId, cliente, ordenarPor, direccion));
+    }
+
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('JUGADOR')")
     @Operation(summary = "Cancelar una reserva")

@@ -7,4 +7,5 @@ import java.util.Optional;
 
 public interface AdministradorCanchaRepository extends JpaRepository<AdministradorCancha, Long> {
     Optional<AdministradorCancha> findByUsuarioId(Long usuarioId);
+    Optional<AdministradorCancha> findByNombreIgnoreCase(String nombre);
 }

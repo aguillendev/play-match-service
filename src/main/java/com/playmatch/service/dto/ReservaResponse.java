@@ -6,6 +6,8 @@ import java.time.LocalTime;
 public class ReservaResponse {
     private Long id;
     private Long canchaId;
+    private String canchaNombre;
+    private String canchaDeporte;
     private String cliente;  // Nombre del jugador
     private String estado;   // pendiente, confirmada, cancelada
     private LocalDate fecha;
@@ -27,6 +29,22 @@ public class ReservaResponse {
 
     public void setCanchaId(Long canchaId) {
         this.canchaId = canchaId;
+    }
+
+    public String getCanchaNombre() {
+        return canchaNombre;
+    }
+
+    public void setCanchaNombre(String canchaNombre) {
+        this.canchaNombre = canchaNombre;
+    }
+
+    public String getCanchaDeporte() {
+        return canchaDeporte;
+    }
+
+    public void setCanchaDeporte(String canchaDeporte) {
+        this.canchaDeporte = canchaDeporte;
     }
 
     public String getCliente() {

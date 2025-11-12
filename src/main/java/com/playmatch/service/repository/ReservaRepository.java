@@ -12,7 +12,7 @@ import java.util.List;
 
 public interface ReservaRepository extends JpaRepository<Reserva, Long> {
 
-    @Query("SELECT r FROM Reserva r WHERE r.cancha = :cancha AND r.inicio < :fin AND r.fin > :inicio")
+    @Query("SELECT r FROM Reserva r WHERE r.cancha = :cancha AND r.inicio < :fin AND r.fin > :inicio AND r.estado != 'CANCELADA'")
     List<Reserva> findOverlapping(@Param("cancha") Cancha cancha,
                                   @Param("inicio") LocalDateTime inicio,
                                   @Param("fin") LocalDateTime fin);
@@ -24,4 +24,7 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
     List<Reserva> findByJugador(Jugador jugador);
 
     List<Reserva> findByCancha(Cancha cancha);
+    
+    @Query("SELECT r FROM Reserva r WHERE r.cancha.administradorCancha.id = :administradorId")
+    List<Reserva> findByAdministradorCanchaId(@Param("administradorId") Long administradorId);
 }

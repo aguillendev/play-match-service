@@ -2,12 +2,14 @@ package com.playmatch.service.service;
 
 import com.playmatch.service.dto.ReservaRequest;
 import com.playmatch.service.dto.ReservaResponse;
+import com.playmatch.service.entity.AdministradorCancha;
 import com.playmatch.service.entity.Cancha;
 import com.playmatch.service.entity.Jugador;
 import com.playmatch.service.entity.Role;
 import com.playmatch.service.entity.Reserva;
 import com.playmatch.service.exception.BadRequestException;
 import com.playmatch.service.exception.NotFoundException;
+import com.playmatch.service.repository.AdministradorCanchaRepository;
 import com.playmatch.service.repository.CanchaRepository;
 import com.playmatch.service.repository.JugadorRepository;
 import com.playmatch.service.repository.ReservaRepository;
@@ -31,13 +33,16 @@ public class ReservationService {
     private final ReservaRepository reservaRepository;
     private final JugadorRepository jugadorRepository;
     private final CanchaRepository canchaRepository;
+    private final AdministradorCanchaRepository administradorCanchaRepository;
 
     public ReservationService(ReservaRepository reservaRepository,
                               JugadorRepository jugadorRepository,
-                              CanchaRepository canchaRepository) {
+                              CanchaRepository canchaRepository,
+                              AdministradorCanchaRepository administradorCanchaRepository) {
         this.reservaRepository = reservaRepository;
         this.jugadorRepository = jugadorRepository;
         this.canchaRepository = canchaRepository;
+        this.administradorCanchaRepository = administradorCanchaRepository;
     }
 
     @Transactional
@@ -142,6 +147,32 @@ public class ReservationService {
         
         // Aplicar filtros
         reservasStream = aplicarFiltros(reservasStream, estado, fechaDesde, fechaHasta, null, cliente);
+        
+        // Convertir a response
+        List<ReservaResponse> reservas = reservasStream.map(this::toResponse).toList();
+        
+        // Aplicar ordenamiento
+        return aplicarOrdenamiento(reservas, ordenarPor, direccion);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ReservaResponse> listarReservasDelAdministrador(String estado, LocalDate fechaDesde, 
+                                                                 LocalDate fechaHasta, Long canchaId, String cliente,
+                                                                 String ordenarPor, String direccion) {
+        UserPrincipal principal = getAuthenticatedPrincipal();
+        if (principal.getRole() != Role.ADMINISTRADOR_CANCHA) {
+            throw new AccessDeniedException("Solo los administradores de cancha pueden listar reservas de sus canchas");
+        }
+        
+        // Buscar el administrador asociado al usuario autenticado
+        AdministradorCancha administrador = administradorCanchaRepository.findByUsuarioId(principal.getUsuarioId())
+                .orElseThrow(() -> new NotFoundException("No se encontró un administrador asociado al usuario"));
+        
+        // Obtener todas las reservas de las canchas del administrador
+        Stream<Reserva> reservasStream = reservaRepository.findByAdministradorCanchaId(administrador.getId()).stream();
+        
+        // Aplicar filtros
+        reservasStream = aplicarFiltros(reservasStream, estado, fechaDesde, fechaHasta, canchaId, cliente);
         
         // Convertir a response
         List<ReservaResponse> reservas = reservasStream.map(this::toResponse).toList();
@@ -281,6 +312,8 @@ public class ReservationService {
         ReservaResponse response = new ReservaResponse();
         response.setId(reserva.getId());
         response.setCanchaId(reserva.getCancha().getId());
+        response.setCanchaNombre(reserva.getCancha().getNombre());
+        response.setCanchaDeporte(reserva.getCancha().getTipo() != null ? reserva.getCancha().getTipo().name() : null);
         response.setCliente(reserva.getJugador().getNombre());
         response.setEstado(reserva.getEstado().name().toLowerCase());
         response.setFecha(reserva.getInicio().toLocalDate());

@@ -2,14 +2,10 @@
 ALTER TABLE usuarios DROP CONSTRAINT IF EXISTS usuarios_role_check;
 
 -- Agregar nueva restricción CHECK que permita ADMINISTRADOR_CANCHA
-ALTER TABLE usuarios ADD CONSTRAINT usuarios_role_check CHECK (role IN ('JUGADOR', 'DUENO', 'ADMINISTRADOR_CANCHA'));
+ALTER TABLE usuarios ADD CONSTRAINT usuarios_role_check CHECK (role IN ('JUGADOR', 'ADMINISTRADOR_CANCHA'));
 
 -- Actualizar el role en la tabla usuarios
 UPDATE usuarios SET role = 'ADMINISTRADOR_CANCHA' WHERE role = 'DUENO';
-
--- Actualizar la restricción CHECK para eliminar DUENO ya que no se usará más
-ALTER TABLE usuarios DROP CONSTRAINT usuarios_role_check;
-ALTER TABLE usuarios ADD CONSTRAINT usuarios_role_check CHECK (role IN ('JUGADOR', 'ADMINISTRADOR_CANCHA'));
 
 -- Verificar si la columna dueno_id existe y renombrarla
 DO $$
