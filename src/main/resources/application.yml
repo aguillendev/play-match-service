@@ -1,11 +1,11 @@
 spring:
   datasource:
-    # url: jdbc:postgresql://localhost:5432/playmatch
-    # username: postgres
-    # password: admin
-    url: jdbc:postgresql://db.ddxqyijxcqaxnvdmxguq.supabase.co:5432/postgres
+    url: jdbc:postgresql://localhost:5432/playmatch
     username: postgres
     password: admin
+    # url: jdbc:postgresql://db.ddxqyijxcqaxnvdmxguq.supabase.co:5432/postgres
+    # username: postgres
+    # password: admin
   jpa:
     hibernate:
       ddl-auto: update

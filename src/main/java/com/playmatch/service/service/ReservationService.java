@@ -233,7 +233,7 @@ public class ReservationService {
             case "estado" -> Comparator.comparing(r -> r.getEstado());
             case "cliente" -> Comparator.comparing(r -> r.getCliente());
             case "monto" -> Comparator.comparing(r -> r.getMonto() != null ? r.getMonto() : 0.0);
-            case "cancha", "canchaid" -> Comparator.comparing(r -> r.getCanchaId());
+            case "cancha", "canchaid" -> Comparator.comparing(r -> r.getCanchaNombre());
             default -> Comparator.comparing(r -> r.getFecha()); // Por defecto ordenar por fecha
         };
         

@@ -106,11 +106,11 @@ public class SeedDataService {
         }
 
         // Generar reservas
-        List<Reserva> reservasCreadas = new ArrayList<>();
+        List<Reserva> reservasAGuardar = new ArrayList<>();
         int intentos = 0;
         int maxIntentos = request.getCantidadReservas() * 10;
 
-        while (reservasCreadas.size() < request.getCantidadReservas() && intentos < maxIntentos) {
+        while (reservasAGuardar.size() < request.getCantidadReservas() && intentos < maxIntentos) {
             intentos++;
             
             try {
@@ -122,12 +122,15 @@ public class SeedDataService {
                 );
                 
                 if (reserva != null) {
-                    reservasCreadas.add(reserva);
+                    reservasAGuardar.add(reserva);
                 }
             } catch (Exception e) {
                 // Ignorar conflictos y continuar intentando
             }
         }
+        
+        // Guardar todas las reservas en batch
+        List<Reserva> reservasCreadas = reservaRepository.saveAll(reservasAGuardar);
 
         // Preparar respuesta
         List<String> nombresCancha = canchas.stream()
@@ -193,17 +196,66 @@ public class SeedDataService {
         long diasDiferencia = fechaHasta.toEpochDay() - fechaDesde.toEpochDay();
         LocalDate fecha = fechaDesde.plusDays(random.nextInt((int) diasDiferencia + 1));
         
-        // Generar hora de inicio aleatoria (entre 8:00 y 20:00)
-        int horaInicio = 8 + random.nextInt(13); // 8 a 20
-        int minutosInicio = random.nextBoolean() ? 0 : 30;
-        LocalTime horaInicioTime = LocalTime.of(horaInicio, minutosInicio);
+        // Obtener horarios disponibles de la cancha
+        LocalTime horarioApertura;
+        LocalTime horarioCierre;
+        
+        if (cancha.getHorarios() != null && !cancha.getHorarios().isEmpty()) {
+            // Si tiene intervalos definidos, usar el primer y último intervalo para el rango
+            List<com.playmatch.service.entity.CanchaHorario> horarios = new ArrayList<>(cancha.getHorarios());
+            horarioApertura = horarios.stream()
+                    .map(com.playmatch.service.entity.CanchaHorario::getInicio)
+                    .min(LocalTime::compareTo)
+                    .orElse(LocalTime.of(8, 0));
+            horarioCierre = horarios.stream()
+                    .map(com.playmatch.service.entity.CanchaHorario::getFin)
+                    .max(LocalTime::compareTo)
+                    .orElse(LocalTime.of(22, 0));
+        } else {
+            // Usar horarios de apertura y cierre de la cancha, o valores por defecto
+            horarioApertura = cancha.getHorarioApertura() != null ? cancha.getHorarioApertura() : LocalTime.of(8, 0);
+            horarioCierre = cancha.getHorarioCierre() != null ? cancha.getHorarioCierre() : LocalTime.of(22, 0);
+        }
+        
+        // Generar hora de inicio aleatoria en horarios REDONDOS (sin :30)
+        int horaMinima = horarioApertura.getHour();
+        int horaMaxima = horarioCierre.getHour() - 2; // Dejar espacio para al menos 1 hora de reserva
+        
+        if (horaMaxima <= horaMinima) {
+            return null; // No hay suficiente rango horario
+        }
+        
+        int horaInicio = horaMinima + random.nextInt(horaMaxima - horaMinima + 1);
+        LocalTime horaInicioTime = LocalTime.of(horaInicio, 0); // Siempre minuto 0
         
         // Duración aleatoria (1 o 2 horas)
         int duracion = random.nextBoolean() ? 1 : 2;
         LocalTime horaFinTime = horaInicioTime.plusHours(duracion);
         
+        // Verificar que la hora de fin no exceda el horario de cierre
+        if (horaFinTime.isAfter(horarioCierre)) {
+            duracion = 1; // Reducir a 1 hora si excede
+            horaFinTime = horaInicioTime.plusHours(1);
+            
+            // Si aún así excede, retornar null
+            if (horaFinTime.isAfter(horarioCierre)) {
+                return null;
+            }
+        }
+        
+        // Validar que el horario esté dentro de algún intervalo disponible (si existen)
+        final LocalTime horaFinFinal = horaFinTime;
+        if (cancha.getHorarios() != null && !cancha.getHorarios().isEmpty()) {
+            boolean dentroDeIntervalo = cancha.getHorarios().stream()
+                    .anyMatch(h -> !horaInicioTime.isBefore(h.getInicio()) && !horaFinFinal.isAfter(h.getFin()));
+            
+            if (!dentroDeIntervalo) {
+                return null; // Fuera de los intervalos disponibles
+            }
+        }
+        
         LocalDateTime inicio = LocalDateTime.of(fecha, horaInicioTime);
-        LocalDateTime fin = LocalDateTime.of(fecha, horaFinTime);
+        LocalDateTime fin = LocalDateTime.of(fecha, horaFinFinal);
         
         // Verificar que no haya solapamiento
         List<Reserva> solapadas = reservaRepository.findOverlapping(cancha, inicio, fin);
@@ -224,6 +276,6 @@ public class SeedDataService {
         double monto = precioHora * duracion;
         reserva.setMonto(monto);
         
-        return reservaRepository.save(reserva);
+        return reserva;
     }
 }
