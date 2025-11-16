@@ -35,13 +35,13 @@ public class ReporteService {
 
         LocalDateTime ahora = LocalDateTime.now();
 
-        // Para el período "día", agrupar por hora mostrando todas las reservas
+        // Para el período "día", agrupar por hora mostrando todas las reservas del día actual
         if ("dia".equalsIgnoreCase(periodo)) {
-            LocalDate fechaInicio = calcularFechaInicio("semana"); // Últimos 7 días para tener datos
+            LocalDate hoy = LocalDate.now();
             
             return administradorCancha.getCanchas().stream()
                     .flatMap(cancha -> cancha.getReservas().stream())
-                    .filter(reserva -> !reserva.getInicio().toLocalDate().isBefore(fechaInicio))
+                    .filter(reserva -> reserva.getInicio().toLocalDate().equals(hoy))
                     .map(reserva -> {
                         // Solo contar recaudación si está confirmada Y ya finalizó
                         double monto = esReservaRecaudada(reserva, ahora) ? 
@@ -96,12 +96,12 @@ public class ReporteService {
 
         LocalDateTime ahora = LocalDateTime.now();
 
-        // Para el período "día", agrupar por hora mostrando todas las reservas
+        // Para el período "día", agrupar por hora mostrando todas las reservas del día actual
         if ("dia".equalsIgnoreCase(periodo)) {
-            LocalDate fechaInicio = calcularFechaInicio("semana"); // Últimos 7 días para tener datos
+            LocalDate hoy = LocalDate.now();
             
             return cancha.getReservas().stream()
-                    .filter(reserva -> !reserva.getInicio().toLocalDate().isBefore(fechaInicio))
+                    .filter(reserva -> reserva.getInicio().toLocalDate().equals(hoy))
                     .map(reserva -> {
                         // Solo contar recaudación si está confirmada Y ya finalizó
                         double monto = esReservaRecaudada(reserva, ahora) ? 
