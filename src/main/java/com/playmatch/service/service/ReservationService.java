@@ -79,9 +79,19 @@ public class ReservationService {
             throw new BadRequestException("La reserva no esta dentro de los horarios disponibles de la cancha");
         }
 
+        // Validar que no haya solapamiento con reservas confirmadas o pendientes
         List<Reserva> existentes = reservaRepository.findOverlapping(cancha, request.getInicio(), request.getFin());
         if (!existentes.isEmpty()) {
-            throw new BadRequestException("La cancha ya está reservada para el horario solicitado");
+            // Verificar si hay alguna reserva confirmada
+            boolean hayConfirmada = existentes.stream()
+                    .anyMatch(r -> r.getEstado() == Reserva.EstadoReserva.CONFIRMADA);
+            
+            if (hayConfirmada) {
+                throw new BadRequestException("La cancha ya tiene una reserva confirmada para el horario solicitado");
+            } else {
+                // Si solo hay reservas pendientes, informar al usuario
+                throw new BadRequestException("La cancha ya está reservada (pendiente de confirmación) para el horario solicitado");
+            }
         }
 
         Reserva reserva = new Reserva();
