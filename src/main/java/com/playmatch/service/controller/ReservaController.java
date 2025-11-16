@@ -107,4 +107,13 @@ public class ReservaController {
     public ResponseEntity<ReservaResponse> rechazar(@PathVariable("id") Long id) {
         return ResponseEntity.ok(reservationService.rechazarReserva(id));
     }
+
+    @PostMapping("/confirmar-todas")
+    @PreAuthorize("hasRole('ADMINISTRADOR_CANCHA')")
+    @Operation(summary = "Confirmar todas las reservas pendientes del administrador de cancha",
+               description = "Confirma todas las reservas en estado PENDIENTE de todas las canchas del administrador autenticado")
+    public ResponseEntity<String> confirmarTodas() {
+        int cantidadConfirmada = reservationService.confirmarTodasReservasPendientes();
+        return ResponseEntity.ok("Se confirmaron " + cantidadConfirmada + " reservas pendientes");
+    }
 }

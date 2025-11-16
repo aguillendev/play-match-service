@@ -300,6 +300,29 @@ public class ReservationService {
         return toResponse(actualizada);
     }
 
+    @Transactional
+    public int confirmarTodasReservasPendientes() {
+        UserPrincipal principal = getAuthenticatedPrincipal();
+        
+        // Obtener el administrador de cancha autenticado
+        AdministradorCancha administrador = administradorCanchaRepository.findByUsuarioId(principal.getUsuarioId())
+                .orElseThrow(() -> new AccessDeniedException("No se encontró un administrador asociado al usuario autenticado"));
+        
+        // Obtener todas las reservas pendientes de las canchas del administrador
+        List<Reserva> reservasPendientes = administrador.getCanchas().stream()
+                .flatMap(cancha -> cancha.getReservas().stream())
+                .filter(reserva -> reserva.getEstado() == Reserva.EstadoReserva.PENDIENTE)
+                .toList();
+        
+        // Confirmar todas las reservas pendientes
+        reservasPendientes.forEach(reserva -> {
+            reserva.setEstado(Reserva.EstadoReserva.CONFIRMADA);
+            reservaRepository.save(reserva);
+        });
+        
+        return reservasPendientes.size();
+    }
+
     private UserPrincipal getAuthenticatedPrincipal() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !(authentication.getPrincipal() instanceof UserPrincipal principal)) {
